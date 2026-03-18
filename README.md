@@ -63,12 +63,12 @@ Tüm işlemler tarayıcınızda gerçekleşir. API anahtarlarınız hiçbir sunu
 ### Seçenek A — Direkt Online Kullan (Önerilen)
 Herhangi bir kurulum yapmadan tarayıcıdan aç:
 ```
-https://dogukanercoskun.github.io/sinav-uretici
+https://dogukanercoskun.github.io/sinav_uretici
 ```
 
 ### Seçenek B — Kendi Bilgisayarında Çalıştır
 ```bash
-git clone https://github.com/dogukanercoskun/sinav-uretici.git
+git clone https://github.com/dogukanercoskun/sinav_uretici.git
 cd sinav-uretici
 # index.html dosyasını tarayıcında aç
 ```
