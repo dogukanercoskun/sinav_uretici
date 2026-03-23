@@ -217,7 +217,25 @@ ${qTypesText.join('\n')}
 ZORLUK SEVİYESİ DENGESİ VE SORU KALİTESİ:
 - Her bölümdeki soruları "Kolay", "Orta" ve "Zor" zorluk seviyesinde dengeli olarak karma üret. JSON objesinde mutlaka "difficulty" alanı olsun.
 - ÇOKTAN SEÇMELİLER (Bölüm A): Sorular mutlaka günlük hayattan bir olayı, deney düzeneklerini veya tablo grafik durumlarını hikayeleştiren analitik sorular olsun. Şıklar çeldirici ve eşit uzunlukta olsun. Basit "Aşağıdakilerden hangisi..." diye başlayan klasik ezber soruları yerine düşündürücü mantık soruları kurgula.
-- "imagePrompt" alanı: Çoktan seçmeli her soru için sorunun BAĞLAMINI (sahneyi, deneyi, durumu) anlatan kısa bir Türkçe açıklama yaz. Örn: "Fenerin önünde saydam, yarı saydam ve opak cisimler", "Dik açıyla yansıyan ışık ve düzlem ayna". Cevabı açıklayan bir şey OLMAMALI, sadece sahne tasviri.
+- "imagePrompt" alanı: ÇOK ÖNEMLİ! Bu alan SVG diyagram üretimi için kullanılacak. SVG'de insan figürü çizmek ÇOK ZORDUR, bu yüzden özel kurallar var:
+
+  ★★★ KRİTİK: İNSAN FİGÜRÜ KURALLARI ★★★
+  - Mümkünse insanı ana konu YAPMA. Bunun yerine NESNELERE, EKİPMANLARA, DENEYSELDÜZENEKLERE, DOĞA SAHNELERINE odaklan.
+  - Spor sorusu: Sporcuyu çizme YERİNE spor ekipmanını (top, kale, halter, pist) ve fizik kavramlarını (kuvvet okları, yörünge yolu) ön plana çıkar.
+  - Eğer insan ZORUNLUYSA: "Basit geometrik ikon-tarzı insan silueti" yaz. Anatomik detay (kas, bacak gerginliği, parmaklar) ASLA yazma.
+  - YASAK TASVİRLER: "kaslı figür", "bacak kasları gergin", "kolları yukarı uzanmış" → BUNLAR SVG'DE ÇOK KÖTÜ SONUÇ VERİR.
+  - İYİ ALTERNATİF: İnsan yerine bilimsel diyagram (kuvvet vektörleri, hareket yörüngesi, enerji dönüşüm şeması) çiz.
+
+  Her çoktan seçmeli soru için DETAYLI, 3-5 cümlelik bir sahne tasviri yaz. Tasvir şunları İÇERMELİDİR:
+  (a) Sahnedeki TÜM nesnelerin listesi ve her birinin MEKÂNSAL KONUMU (ör: "Solda bir beher, sağda bir ispirto ocağı, ortada termometre").
+  (b) Nesnelerin RENK, BOYUT ve MATERYAL bilgileri (ör: "Saydam cam balonjoze, içinde açık mavi sıvı, tüpün ağzından yoğun beyaz buhar çıkıyor").
+  (c) BİLİMSEL BAĞLAM detayları (ör: "Işık kaynağı sol üstten geliyor, cismin sağ arkasında koyu gölge oluşuyor", "Ok yönleri kuvvetin yukarı doğru olduğunu gösteriyor").
+  (d) ARKA PLAN / ZEMİN tanımı (ör: "Temiz beyaz laboratuvar tezgahı üzerinde", "Yeşil çimenli doğa ortamında", "Gökyüzü açık mavi, güneş sağ üstte").
+  (e) ÖNERİLEN BAKIŞ AÇISI (ör: "Yandan profil görünüm", "Kuşbakışı", "3/4 izometrik açı").
+  ÖRNEK İYİ imagePrompt (İNSANSIZ): "Beyaz laboratuvar tezgahı üzerinde solda şeffaf cam beher içinde yarıya kadar açık mavi sıvı, ortada kırmızı sıvılı dereceli silindir, sağda metal ispirto ocağı ve küçük sarı alev. Arka planda soluk gri duvar. Yandan profil bakış açısı."
+  ÖRNEK İYİ imagePrompt (SPOR/FİZİK): "Yeşil çimenli saha üzerinde sarı bir futbol topu, topun arkasında kesikli çizgiyle parabol yörünge yolu gösterilmiş, yörünge üzerinde hız vektörleri (mavi oklar) ve yer çekimi vektörü (kırmızı ok aşağı doğru). Arka planda bulanık kale direği. Fizik diyagramı tarzında."
+  KÖTÜ imagePrompt: "Kaslı halterci figürü, bacak kasları gergin" → SVG İNSAN ÇİZEMEZ!
+  Cevabı doğrudan açıklayan bir sahne OLMAMALI, sadece sorunun bağlamını tasvir et.
 
 DÖNGÜ, SONUÇ VE FORMAT (PÜR JSON):
 Hiçbir kelime yazma, sadece aşağıdaki formatta JSON dön:
@@ -477,41 +495,26 @@ function renderSelectionPool() {
             card.dataset.section = sectionPrefix;
             card.dataset.idx = idx;
 
-            card.onclick = function () {
+            card.onclick = function (e) {
+                // Düzenleme modundayken kart tıklamasını engelle
+                if (this.classList.contains('editing')) return;
+                // Edit butonuna veya form elemanlarına tıklanmışsa seçimi toggle etme
+                if (e.target.closest('.q-edit-btn') || e.target.closest('.q-edit-form')) return;
                 let cb = this.querySelector('input[type="checkbox"]');
                 cb.checked = !cb.checked;
                 this.classList.toggle('selected', cb.checked);
             };
 
-            let contentHTML = '';
-            let metaHTML = '';
-            let diffClass = `diff-${q.difficulty || 'Orta'}`;
-            metaHTML += `<span class="q-badge ${diffClass}">Zorluk: ${q.difficulty || 'Orta'}</span>`;
-
-            if (sectionPrefix === 'A') {
-                contentHTML = `<strong>${q.stem}</strong><br>
-                   <span style="color:#64748b; font-size:12px">A) ${q.options.A} | B) ${q.options.B} | C) ${q.options.C} | D) ${q.options.D}</span>`;
-                metaHTML += `<span class="q-badge">Doğru Cevap: ${q.answer}</span>`;
-            } else if (sectionPrefix === 'B') {
-                contentHTML = `<strong>${q.statement}</strong>`;
-                metaHTML += `<span class="q-badge">Cevap: ${q.answer}</span>`;
-            } else if (sectionPrefix === 'C') {
-                contentHTML = `<strong>${q.question}</strong>`;
-            } else if (sectionPrefix === 'D') {
-                contentHTML = `<strong>${q.text}</strong>`;
-                metaHTML += `<span class="q-badge">Cevap: ${q.answer}</span>`;
-            } else if (sectionPrefix === 'E') {
-                contentHTML = `<em>Eşleştirme Seti</em><br>`;
-                q.left.forEach((l, i) => { contentHTML += `> ${l} --- ${q.right[i] || ''}<br>`; });
-                metaHTML += `<span class="q-badge">Doğru Eşleşmeler: ${q.pairs.join(', ')}</span>`;
-            }
+            let contentHTML = buildCardContent(q, sectionPrefix);
+            let metaHTML = buildCardMeta(q, sectionPrefix);
 
             card.innerHTML = `
                 <input type="checkbox" class="q-check" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation()">
-                <div class="q-content">
+                <div class="q-content" id="qcontent_${sectionPrefix}_${idx}">
                     ${contentHTML}
                     <div class="q-meta">${metaHTML}</div>
                 </div>
+                <button class="q-edit-btn" onclick="event.stopPropagation(); toggleEditMode('${sectionPrefix}', ${idx})" title="Bu soruyu düzenle">✏️ Düzenle</button>
             `;
             pool.appendChild(card);
         });
@@ -522,6 +525,281 @@ function renderSelectionPool() {
     buildSection('BÖLÜM C - Açık Uçlu',        edata.sectionC, 'C', targetCounts.C);
     buildSection('BÖLÜM D - Boşluk Doldurma',  edata.sectionD, 'D', targetCounts.D);
     buildSection('BÖLÜM E - Eşleştirme',       edata.sectionE, 'E', targetCounts.E);
+}
+
+// ─── Kart içeriği oluşturucu (görüntüleme modu) ───
+function buildCardContent(q, sectionPrefix) {
+    if (sectionPrefix === 'A') {
+        return `<strong>${q.stem}</strong><br>
+           <span style="color:#64748b; font-size:12px">A) ${q.options.A} | B) ${q.options.B} | C) ${q.options.C} | D) ${q.options.D}</span>`;
+    } else if (sectionPrefix === 'B') {
+        return `<strong>${q.statement}</strong>`;
+    } else if (sectionPrefix === 'C') {
+        return `<strong>${q.question}</strong>`;
+    } else if (sectionPrefix === 'D') {
+        return `<strong>${q.text}</strong>`;
+    } else if (sectionPrefix === 'E') {
+        let html = `<em>Eşleştirme Seti</em><br>`;
+        q.left.forEach((l, i) => { html += `> ${l} --- ${q.right[i] || ''}<br>`; });
+        return html;
+    }
+    return '';
+}
+
+// ─── Kart meta bilgisi oluşturucu ───
+function buildCardMeta(q, sectionPrefix) {
+    let diffClass = `diff-${q.difficulty || 'Orta'}`;
+    let metaHTML = `<span class="q-badge ${diffClass}">Zorluk: ${q.difficulty || 'Orta'}</span>`;
+    if (sectionPrefix === 'A') {
+        metaHTML += `<span class="q-badge">Doğru Cevap: ${q.answer}</span>`;
+    } else if (sectionPrefix === 'B') {
+        metaHTML += `<span class="q-badge">Cevap: ${q.answer}</span>`;
+    } else if (sectionPrefix === 'D') {
+        metaHTML += `<span class="q-badge">Cevap: ${q.answer}</span>`;
+    } else if (sectionPrefix === 'E') {
+        metaHTML += `<span class="q-badge">Doğru Eşleşmeler: ${q.pairs.join(', ')}</span>`;
+    }
+    return metaHTML;
+}
+
+// ─── Düzenleme modunu aç / kapat ───
+window.toggleEditMode = function(sectionPrefix, idx) {
+    let card = document.querySelector(`.q-card[data-section="${sectionPrefix}"][data-idx="${idx}"]`);
+    if (!card) return;
+
+    // Zaten düzenleme modundaysa → iptal et
+    if (card.classList.contains('editing')) {
+        cancelEdit(card, sectionPrefix, idx);
+        return;
+    }
+
+    card.classList.add('editing');
+    let contentDiv = document.getElementById(`qcontent_${sectionPrefix}_${idx}`);
+    let q = edata['section' + sectionPrefix][idx];
+    let editBtn = card.querySelector('.q-edit-btn');
+    editBtn.textContent = '✕ İptal';
+    editBtn.style.background = '#fee2e2';
+    editBtn.style.color = '#ef4444';
+    editBtn.style.borderColor = '#fca5a5';
+
+    let formHTML = '<div class="q-edit-form">';
+
+    if (sectionPrefix === 'A') {
+        formHTML += `
+            <div class="q-edit-field">
+                <span class="q-edit-label">Soru Kökü</span>
+                <textarea class="q-edit-textarea" id="edit_stem_${sectionPrefix}_${idx}" rows="3">${escapeHtml(q.stem)}</textarea>
+            </div>
+            <div class="q-edit-field">
+                <span class="q-edit-label">Şıklar</span>
+                <div class="q-edit-options-grid">
+                    <div class="q-edit-option-row">
+                        <span class="q-edit-option-label">A)</span>
+                        <input class="q-edit-input" id="edit_optA_${sectionPrefix}_${idx}" value="${escapeHtml(q.options.A)}">
+                    </div>
+                    <div class="q-edit-option-row">
+                        <span class="q-edit-option-label">B)</span>
+                        <input class="q-edit-input" id="edit_optB_${sectionPrefix}_${idx}" value="${escapeHtml(q.options.B)}">
+                    </div>
+                    <div class="q-edit-option-row">
+                        <span class="q-edit-option-label">C)</span>
+                        <input class="q-edit-input" id="edit_optC_${sectionPrefix}_${idx}" value="${escapeHtml(q.options.C)}">
+                    </div>
+                    <div class="q-edit-option-row">
+                        <span class="q-edit-option-label">D)</span>
+                        <input class="q-edit-input" id="edit_optD_${sectionPrefix}_${idx}" value="${escapeHtml(q.options.D)}">
+                    </div>
+                </div>
+            </div>
+            <div class="q-edit-field" style="display:flex; flex-direction:row; gap:16px; align-items:flex-end; flex-wrap:wrap;">
+                <div style="flex-shrink:0;">
+                    <span class="q-edit-label">Doğru Cevap</span>
+                    <select class="q-edit-select" id="edit_answer_${sectionPrefix}_${idx}">
+                        <option value="A" ${q.answer === 'A' ? 'selected' : ''}>A</option>
+                        <option value="B" ${q.answer === 'B' ? 'selected' : ''}>B</option>
+                        <option value="C" ${q.answer === 'C' ? 'selected' : ''}>C</option>
+                        <option value="D" ${q.answer === 'D' ? 'selected' : ''}>D</option>
+                    </select>
+                </div>
+                <div style="flex-shrink:0;">
+                    <span class="q-edit-label">Zorluk</span>
+                    <select class="q-edit-select" id="edit_diff_${sectionPrefix}_${idx}">
+                        <option value="Kolay" ${q.difficulty === 'Kolay' ? 'selected' : ''}>Kolay</option>
+                        <option value="Orta" ${q.difficulty === 'Orta' ? 'selected' : ''}>Orta</option>
+                        <option value="Zor" ${q.difficulty === 'Zor' ? 'selected' : ''}>Zor</option>
+                    </select>
+                </div>
+            </div>
+            <div class="q-edit-field">
+                <span class="q-edit-label">Görsel Tasviri (imagePrompt)</span>
+                <textarea class="q-edit-textarea" id="edit_imgprompt_${sectionPrefix}_${idx}" rows="2" placeholder="SVG diyagram için sahne tasviri...">${escapeHtml(q.imagePrompt || '')}</textarea>
+            </div>`;
+    } else if (sectionPrefix === 'B') {
+        formHTML += `
+            <div class="q-edit-field">
+                <span class="q-edit-label">İfade</span>
+                <textarea class="q-edit-textarea" id="edit_statement_${sectionPrefix}_${idx}" rows="2">${escapeHtml(q.statement)}</textarea>
+            </div>
+            <div class="q-edit-field" style="display:flex; flex-direction:row; gap:16px; align-items:flex-end; flex-wrap:wrap;">
+                <div>
+                    <span class="q-edit-label">Cevap</span>
+                    <select class="q-edit-select" id="edit_answer_${sectionPrefix}_${idx}">
+                        <option value="D" ${q.answer === 'D' ? 'selected' : ''}>Doğru (D)</option>
+                        <option value="Y" ${q.answer === 'Y' ? 'selected' : ''}>Yanlış (Y)</option>
+                    </select>
+                </div>
+                <div>
+                    <span class="q-edit-label">Zorluk</span>
+                    <select class="q-edit-select" id="edit_diff_${sectionPrefix}_${idx}">
+                        <option value="Kolay" ${q.difficulty === 'Kolay' ? 'selected' : ''}>Kolay</option>
+                        <option value="Orta" ${q.difficulty === 'Orta' ? 'selected' : ''}>Orta</option>
+                        <option value="Zor" ${q.difficulty === 'Zor' ? 'selected' : ''}>Zor</option>
+                    </select>
+                </div>
+            </div>`;
+    } else if (sectionPrefix === 'C') {
+        formHTML += `
+            <div class="q-edit-field">
+                <span class="q-edit-label">Açık Uçlu Soru</span>
+                <textarea class="q-edit-textarea" id="edit_question_${sectionPrefix}_${idx}" rows="3">${escapeHtml(q.question)}</textarea>
+            </div>
+            <div class="q-edit-field">
+                <span class="q-edit-label">Zorluk</span>
+                <select class="q-edit-select" id="edit_diff_${sectionPrefix}_${idx}">
+                    <option value="Kolay" ${q.difficulty === 'Kolay' ? 'selected' : ''}>Kolay</option>
+                    <option value="Orta" ${q.difficulty === 'Orta' ? 'selected' : ''}>Orta</option>
+                    <option value="Zor" ${q.difficulty === 'Zor' ? 'selected' : ''}>Zor</option>
+                </select>
+            </div>`;
+    } else if (sectionPrefix === 'D') {
+        formHTML += `
+            <div class="q-edit-field">
+                <span class="q-edit-label">Boşluk Doldurma Metni (.... = boşluk)</span>
+                <textarea class="q-edit-textarea" id="edit_text_${sectionPrefix}_${idx}" rows="2">${escapeHtml(q.text)}</textarea>
+            </div>
+            <div class="q-edit-field" style="display:flex; flex-direction:row; gap:16px; align-items:flex-end; flex-wrap:wrap;">
+                <div style="flex:1;">
+                    <span class="q-edit-label">Cevap</span>
+                    <input class="q-edit-input" id="edit_answer_${sectionPrefix}_${idx}" value="${escapeHtml(q.answer)}">
+                </div>
+                <div>
+                    <span class="q-edit-label">Zorluk</span>
+                    <select class="q-edit-select" id="edit_diff_${sectionPrefix}_${idx}">
+                        <option value="Kolay" ${q.difficulty === 'Kolay' ? 'selected' : ''}>Kolay</option>
+                        <option value="Orta" ${q.difficulty === 'Orta' ? 'selected' : ''}>Orta</option>
+                        <option value="Zor" ${q.difficulty === 'Zor' ? 'selected' : ''}>Zor</option>
+                    </select>
+                </div>
+            </div>`;
+    } else if (sectionPrefix === 'E') {
+        formHTML += `<div class="q-edit-field"><span class="q-edit-label">Eşleştirme Çiftleri</span></div>`;
+        let maxLen = Math.max(q.left.length, q.right.length);
+        for (let i = 0; i < maxLen; i++) {
+            formHTML += `
+            <div style="display:flex; gap:8px; align-items:center;">
+                <input class="q-edit-input" id="edit_left_${sectionPrefix}_${idx}_${i}" value="${escapeHtml(q.left[i] || '')}" placeholder="Sol ${i+1}" style="flex:1;">
+                <span style="color:#64748b; font-weight:700;">↔</span>
+                <input class="q-edit-input" id="edit_right_${sectionPrefix}_${idx}_${i}" value="${escapeHtml(q.right[i] || '')}" placeholder="Sağ ${i+1}" style="flex:1;">
+            </div>`;
+        }
+        formHTML += `
+            <div class="q-edit-field">
+                <span class="q-edit-label">Doğru Eşleşmeler (virgülle, örn: A-2, B-1)</span>
+                <input class="q-edit-input" id="edit_pairs_${sectionPrefix}_${idx}" value="${escapeHtml(q.pairs.join(', '))}">
+            </div>
+            <div class="q-edit-field">
+                <span class="q-edit-label">Zorluk</span>
+                <select class="q-edit-select" id="edit_diff_${sectionPrefix}_${idx}">
+                    <option value="Kolay" ${q.difficulty === 'Kolay' ? 'selected' : ''}>Kolay</option>
+                    <option value="Orta" ${q.difficulty === 'Orta' ? 'selected' : ''}>Orta</option>
+                    <option value="Zor" ${q.difficulty === 'Zor' ? 'selected' : ''}>Zor</option>
+                </select>
+            </div>`;
+    }
+
+    formHTML += `
+        <div class="q-edit-actions">
+            <button class="q-edit-save" onclick="event.stopPropagation(); saveQuestionEdit('${sectionPrefix}', ${idx})">✅ Kaydet</button>
+            <button class="q-edit-cancel" onclick="event.stopPropagation(); cancelEdit(null, '${sectionPrefix}', ${idx})">İptal</button>
+        </div>
+    </div>`;
+
+    contentDiv.innerHTML = formHTML;
+};
+
+// ─── Düzenlenen soruyu kaydet ───
+window.saveQuestionEdit = function(sectionPrefix, idx) {
+    let q = edata['section' + sectionPrefix][idx];
+    let diffEl = document.getElementById(`edit_diff_${sectionPrefix}_${idx}`);
+    if (diffEl) q.difficulty = diffEl.value;
+
+    if (sectionPrefix === 'A') {
+        q.stem = document.getElementById(`edit_stem_${sectionPrefix}_${idx}`).value.trim();
+        q.options.A = document.getElementById(`edit_optA_${sectionPrefix}_${idx}`).value.trim();
+        q.options.B = document.getElementById(`edit_optB_${sectionPrefix}_${idx}`).value.trim();
+        q.options.C = document.getElementById(`edit_optC_${sectionPrefix}_${idx}`).value.trim();
+        q.options.D = document.getElementById(`edit_optD_${sectionPrefix}_${idx}`).value.trim();
+        q.answer = document.getElementById(`edit_answer_${sectionPrefix}_${idx}`).value;
+        q.imagePrompt = document.getElementById(`edit_imgprompt_${sectionPrefix}_${idx}`).value.trim();
+    } else if (sectionPrefix === 'B') {
+        q.statement = document.getElementById(`edit_statement_${sectionPrefix}_${idx}`).value.trim();
+        q.answer = document.getElementById(`edit_answer_${sectionPrefix}_${idx}`).value;
+    } else if (sectionPrefix === 'C') {
+        q.question = document.getElementById(`edit_question_${sectionPrefix}_${idx}`).value.trim();
+    } else if (sectionPrefix === 'D') {
+        q.text = document.getElementById(`edit_text_${sectionPrefix}_${idx}`).value.trim();
+        q.answer = document.getElementById(`edit_answer_${sectionPrefix}_${idx}`).value.trim();
+    } else if (sectionPrefix === 'E') {
+        let newLeft = [], newRight = [];
+        let maxLen = Math.max(q.left.length, q.right.length);
+        for (let i = 0; i < maxLen; i++) {
+            let lEl = document.getElementById(`edit_left_${sectionPrefix}_${idx}_${i}`);
+            let rEl = document.getElementById(`edit_right_${sectionPrefix}_${idx}_${i}`);
+            if (lEl) newLeft.push(lEl.value.trim());
+            if (rEl) newRight.push(rEl.value.trim());
+        }
+        q.left = newLeft;
+        q.right = newRight;
+        let pairsStr = document.getElementById(`edit_pairs_${sectionPrefix}_${idx}`).value.trim();
+        q.pairs = pairsStr.split(',').map(p => p.trim()).filter(Boolean);
+    }
+
+    // Kartı normal görünüme döndür
+    let card = document.querySelector(`.q-card[data-section="${sectionPrefix}"][data-idx="${idx}"]`);
+    card.classList.remove('editing');
+    let editBtn = card.querySelector('.q-edit-btn');
+    editBtn.textContent = '✏️ Düzenle';
+    editBtn.style.background = '';
+    editBtn.style.color = '';
+    editBtn.style.borderColor = '';
+
+    let contentDiv = document.getElementById(`qcontent_${sectionPrefix}_${idx}`);
+    contentDiv.innerHTML = buildCardContent(q, sectionPrefix) + `<div class="q-meta">${buildCardMeta(q, sectionPrefix)}</div>`;
+
+    showToast('Soru başarıyla güncellendi.', 'success');
+};
+
+// ─── Düzenlemeyi iptal et ───
+window.cancelEdit = function(cardEl, sectionPrefix, idx) {
+    let card = cardEl || document.querySelector(`.q-card[data-section="${sectionPrefix}"][data-idx="${idx}"]`);
+    if (!card) return;
+
+    card.classList.remove('editing');
+    let editBtn = card.querySelector('.q-edit-btn');
+    editBtn.textContent = '✏️ Düzenle';
+    editBtn.style.background = '';
+    editBtn.style.color = '';
+    editBtn.style.borderColor = '';
+
+    let q = edata['section' + sectionPrefix][idx];
+    let contentDiv = document.getElementById(`qcontent_${sectionPrefix}_${idx}`);
+    contentDiv.innerHTML = buildCardContent(q, sectionPrefix) + `<div class="q-meta">${buildCardMeta(q, sectionPrefix)}</div>`;
+};
+
+// ─── HTML escape yardımcısı ───
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 // ─────────────────────────────────────────────────────────
@@ -886,39 +1164,185 @@ async function loadSvgImage(num, sec = 'A') {
     let sub       = document.getElementById('csub')?.value || 'Genel';
 
     let promptStr = `Sen MEB / Lise / Üniversite müfredatına tam hakim, ulusal çapta basılacak "Premium" eğitim kitapları resimleyen usta bir dijital vektör illüstratörü ve "SVG" geliştirme uzmanısın.
-Aşağıda sana verilen soru köküne ve ekstra sahne tasvirine bakarak BİLİMSEL VE MANTIKSAL AÇIDAN TAMAMEN DOĞRU, MUHTEŞEM KALİTEDE bir SVG çizimi kurgulayıp kodlayacaksın.
 
+═══════════════════════════════════════════════════════
+📋 GİRDİ BİLGİLERİ
+═══════════════════════════════════════════════════════
 Ders Adı: ${sub}
 Konu Bütünlüğü: ${topic}
 İlgili Sınıf Seviyesi: ${grade}
 Soru Metni: "${stem}"
 Görsel Sahne Tasviri: "${sceneHint || 'Yukarıdaki soruyu derince analiz ederek en uygun deney düzeneğini, grafiği, yaşam alanını, diyagramı, haritayı veya soyut modeli kendin tasarla ve kodla.'}"
 
-═══════════════════════════════════
-⚠️ KURAL 0 — EVRENSEL DOĞRULUK VE MEKÂNSAL UYUM (ASLA İHLAL ETME):
-Dersin (${sub}) doğasına göre çizimi planla:
-→ SAYISAL (Matematik / Geometri vb.): Şekiller tamamen orantılı, geometrik düzleme ve perspektife uygun olmalı.
-→ FEN (Fizik / Kimya / Biyoloji vb.): Mekanik veya optik düzeneklerde neden-sonuç fiziksel mantığa uymalı. Işık kaynağı cismin ÖNÜNDE olmalı. Laboratuvar malzemeleri (beher, tüp) sağlam durmalı, havada uçmamalı. Biyolojik görseller boyut orantılarına, katmanlara veya besin zinciri hiyerarşisine uymalı.
-→ SOSYAL (Tarih / Coğrafya vb.): Harita, kroki veya tablo/grafikler dersteki kavram setini eksiksiz, net bir şema ve hiyerarşi etrafında betimlemeli.
-→ GENEL YERLEŞİM: Hiçbir nesne birbiriyle anlamsızca iç içe geçmemeli, boşlukta süzülmemeli. Soldan sağa veya yukarıdan aşağıya mantıklı bir dizilim şarttır.
-═══════════════════════════════════
+═══════════════════════════════════════════════════════
+🧠 ADIM 1 — ÖN-ANALİZ (ÖNCELİKLE BUNU YAP, SONRA ÇİZ)
+═══════════════════════════════════════════════════════
+SVG kodunu yazmaya başlamadan ÖNCE zihinsel olarak şunları planla:
 
-ÇİZİM KURALLARI (KATI — ASLA İHLAL ETME):
-1. [YASAK] SVG İÇİNDE KESİNLİKLE METİN (<text>), HARF VEYA RAKAM KULLANILMAYACAK! (Tüm yazılar harici eklenecek).
-2. [FORMAT] Yalnızca <svg> ile başlayıp </svg> ile biten saf XML kodunu döndür. Markdown veya açıklama yazma.
-3. [ÖLÇÜ] viewBox="0 0 1000 600" kullan. Tüm objeleri bu alanda dengeli ve estetik yerleştir.
-4. [BAKIŞ AÇISI] Konuya en uygun açıyı seç (Deneyler için genelde yandan/profil, Biyolojik sistemler için kesit veya 3/4 izometrik).
+1. BİLİMSEL ALAN TESPİTİ: Soru hangi bilim dalına ait? (Fizik, Kimya, Biyoloji, Matematik, Coğrafya, Tarih...)
+2. ANA NESNELER: Sahnede hangi nesneler olmalı? Her birini listele.
+3. NESNELER ARASI İLİŞKİ: Bu nesneler arasında bilimsel/mantıksal ilişki nedir? (neden-sonuç, hiyerarşi, bağlantı, yön)
+4. MEKÂNSAL YERLEŞİM PLANI: ViewBox (1000×600) içinde her nesne nereye yerleşecek?
+   - Sol bölge (x: 50-350): ...
+   - Orta bölge (x: 350-650): ...
+   - Sağ bölge (x: 650-950): ...
+   - Üst bölge (y: 20-200): ...
+   - Alt bölge / zemin (y: 400-580): ...
+5. BAKIŞ AÇISI: En uygun perspektif hangisi? (Yandan profil, kuşbakışı, izometrik 3/4, kesit görünümü)
+6. RENK PALETİ: Konuya göre uyumlu renk paleti seç:
+   → Fizik/Mekanik: Koyu mavi (#1e3a5f), turuncu (#f97316), gri-metal (#94a3b8), beyaz
+   → Kimya/Laboratuvar: Turkuaz (#06b6d4), mor (#7c3aed), cam mavisi (#bfdbfe), alev turuncusu (#fb923c)
+   → Biyoloji/Ekosistem: Yeşil tonları (#15803d, #86efac), toprak kahvesi (#92400e), gökyüzü mavisi (#7dd3fc)
+   → Matematik/Geometri: Kırmızı (#dc2626), mavi (#2563eb), siyah (#1e293b), açık gri (#e2e8f0)
+   → Coğrafya/Uzay: Koyu lacivert (#0f172a), altın sarısı (#fbbf24), toprak yeşili (#365314)
 
-HİPER-DETAYLI TASARIM ÖZELLİKLERİ:
-A- ZEMİN/ARKA PLAN: Deney ise alt kısma masa/zemin, canlı/ekosistem ise doğal arka plan, uzay ise karanlık yıldızlı derinlik çiz.
-B- IŞIK VE GÖLGE: <defs> içinde <linearGradient> ve <radialGradient> kullan. Her objeye 3D derinlik katan parlama ve gerçekçi düşen gölge ekle.
-C- MATERYAL DOKULARI:
-  - Cam/Sıvı: yarı saydam mavi (opacity="0.3"), sıvı seviyesi, baloncuklar.
-  - Metal/Plastik: pürüzsüz parlak gradyanlar.
-  - Canlılar/Organik: Kıvrımlı path'ler, dokulu yüzey hissiyatı (tüyler, yaprak damarları).
-D- ENERJİ/HAREKET: Işık, ısı, hareket veya kuvvet yönleri parlak renkli şeritler veya ok başları (<polygon>) ile kesin şekilde ifade edilsin.
+═══════════════════════════════════════════════════════
+🚨 ADIM 1.5 — İNSAN FİGÜRÜ KRİTİK KURALLARI
+═══════════════════════════════════════════════════════
+SVG ile insan çizmek ÇOK ZORDUR. Bu yüzden şu katı kuralları uygula:
 
-Asıl hedef: MEB kitaplarındaki renkli, hacimli, ultra profesyonel ve BİLİMSEL AÇIDAN %100 DOĞRU sanat eserlerinden birini yaratmak. ŞİMDİ SADECE SVG KODUNU VER.`;
+🔴 YASAK — ASLA YAPMA:
+  → Anatomik insan çizmeye ÇALIŞMA (kas detayları, parmaklar, yüz ifadeleri)
+  → Gerçekçi vücut oranları hedefleme — BAŞARISIZ OLACAK
+  → Hareketli poz çizmeye çalışma (koşan, zıplayan, tekme atan figür)
+  → İnsan gövdesini birden fazla organik path ile oluşturmaya çalışma
+
+🟢 İZİN VERİLEN — İNSAN GEREKİYORSA:
+  → SADECE geometrik/ikon tarzı basit siluet kullan:
+     • Kafa = <circle r="18-22"> (KÜÇÜK, gövdenin 1/4'ü kadar)
+     • Gövde = <rect> veya <path> ile basit trapez (genişlik: 40-60px, yükseklik: 80-100px)
+     • Kollar = <line> veya <path> ile basit çizgiler (stroke-width: 6-8)
+     • Bacaklar = <line> veya <path> ile basit çizgiler (stroke-width: 7-9)
+     • Tüm parçalar TEN RENGİ (#fcd5b4 veya #d4a574) değil, TEK DÜZ RENK (#475569 koyu gri veya siyah siluet) olmalı
+  → Figür boyutu: Toplam yükseklik 180-250px arası (viewBox 600px yüksekliğinde)
+  → Figür zemin çizgisinin ÜSTÜNDE durmalı (ayaklar tam zemin y koordinatına değmeli)
+
+📐 ORAN TABLOSU (ZORUNLU):
+  → Kafa çapı ≤ gövde genişliğinin 1/2'si
+  → Kollar gövde yüksekliğinin %70'i kadar uzun
+  → Bacaklar gövde yüksekliğiyle eşit veya biraz uzun
+  → Eğer nesne tutuyorsa (top, halter vb.): nesne boyutu ≤ figür boyunun 1/3'ü
+
+🔗 NESNE BAĞLANTI KURALI (ÇOK ÖNEMLİ):
+  → Figürün tuttuğu nesneler (halter, top, kalem vb.) figüre FİZİKSEL OLARAK BAĞLI olmalı
+  → Bağlantı yöntemi: Nesnenin koordinatları kolun/elin bitiş koordinatıyla AYNI olmalı
+  → YASAKK: Nesne havada süzülen ayrı bir obje olarak çizilmesi
+  → Eğer nesne yerdeyse (top, kutu): Nesnenin alt kenarı = zemin y koordinatı
+
+✅ EN İYİ YAKLAŞIM: İnsan figürü yerine BİLİMSEL DİYAGRAM çiz!
+  → Spor/Fizik: Kuvvet vektörleri, yörünge eğrileri, enerji dönüşüm şemaları
+  → Sağlık/Biyoloji: Organ diyagramları, hücre kesitleri
+  → Günlük hayat: Nesnelerin kendileri (araç, top, araç-gereç) + fizik okları
+
+═══════════════════════════════════════════════════════
+⚠️ ADIM 2 — KATMAN KATMAN KOMPOZİSYON PLANI
+═══════════════════════════════════════════════════════
+SVG'yi şu katman sırasıyla oluştur:
+
+KATMAN 1 — ARKA PLAN (en altta):
+  → Deney sahnesi: Düz renk veya hafif gradyanlı duvar + tezgah/masa
+  → Doğa sahnesi: Gökyüzü gradyanı + çim/toprak + ağaçlar (basit siluet)
+  → Uzay sahnesi: Koyu yıldızlı derinlik (küçük beyaz daireler)
+  → Matematik: Temiz kare ızgara veya düz beyaz zemin
+  → Arka plan viewBox'un tamamını kaplasın (0,0 → 1000,600)
+
+KATMAN 2 — ZEMİN / PLATFORM:
+  → Laboratuvar masası: y=450-480 civarında, gri-kahverengi gradyan ile kalınlık hissi
+  → Doğa zemini: y=480-600 civarında, yeşil çim dokusu veya toprak rengi
+  → Nesnelerin DURACağı yüzey — nesneler bu yüzeyin ÜSTÜNe yerleştirilmeli
+  → ÖNEMLİ: Zemin çizgisi y koordinatını belirle (ör: y=480) ve TÜM nesneler + figürler bu çizginin üstüne oturmalı
+
+KATMAN 3 — ANA NESNELER (sahnenin yıldızları):
+  → Her nesne EN AZ 80x80 piksel büyüklüğünde olmalı (görünür olması için)
+  → Nesneler arasında EN AZ 30px boşluk bırak (üst üste binmesin)
+  → Her nesne birden fazla <path>, <rect>, <ellipse>, <circle> kombinasyonuyla DETAYLI çizilmeli
+  → Tek bir dikdörtgen veya daire ile nesne temsil etme — DETAY VER!
+  → BAĞLANTI: Birbirine bağlı nesneler (kablo-priz, halter-el, balon-ip) aynı koordinatları paylaşmalı
+
+KATMAN 4 — DETAYLAR VE DOKULAR:
+  → Cam yüzeyler: yarı saydam katmanlar (opacity 0.2-0.4), parlama efekti (beyaz elips)
+  → Sıvılar: eliptik üst yüzey + silindirik gövde, içinde küçük baloncuklar (3-5 adet küçük daire)
+  → Metal: lineer gradyanlarla parlak yansıma efekti
+  → Canlılar: Kıvrımlı path'ler, organik formlar, doku detayları
+
+KATMAN 5 — ENERJİ, HAREKET, YÖN GÖSTERGELERİ:
+  → Işık ışınları: Sarı/turuncu yarı saydam çizgiler, ışık kaynağından dışa doğru
+  → Kuvvet okları: Kalın renkli çizgi + polygon ok başı (en az 8px genişliğinde)
+  → Isı/sıcaklık: Kırmızıdan maviye gradyan bantları
+  → Hareket: Kesikli çizgiler (stroke-dasharray) veya titreşim dalgaları
+
+KATMAN 6 — GÖLGELER VE PARLAMA (en üstte):
+  → Her ana nesnenin altında yarı saydam koyu elips gölge (opacity 0.15-0.25)
+  → Cam/metal nesnelerin üzerinde küçük beyaz parlama noktası (radialGradient ile)
+
+═══════════════════════════════════════════════════════
+🎨 ADIM 3 — GELİŞMİŞ SVG TEKNİKLERİ (MUTLAKA KULLAN)
+═══════════════════════════════════════════════════════
+<defs> bloğu içinde şunları MUTLAKA tanımla:
+
+a) GRADYANLAR — her sahne için EN AZ 3 farklı gradyan:
+   <linearGradient id="grad_sky" x1="0" y1="0" x2="0" y2="1">
+     <stop offset="0%" stop-color="#87CEEB"/><stop offset="100%" stop-color="#E0F2FE"/>
+   </linearGradient>
+
+b) GÖLGE FİLTRESİ — nesnelere derinlik katmak için:
+   <filter id="shadow"><feDropShadow dx="3" dy="5" stdDeviation="4" flood-opacity="0.2"/></filter>
+   Tüm ana nesnelere filter="url(#shadow)" uygula.
+
+c) PARLAMA FİLTRESİ — cam / metal yüzeyler için:
+   <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+
+d) DOKU DESENLERİ (isteğe bağlı, zenginlik katmak için):
+   <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+     <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e2e8f0" stroke-width="0.5"/>
+   </pattern>
+
+e) CLIP PATH — karmaşık şekillerde kırpma için:
+   <clipPath id="beaker_clip"><rect x=".." y=".." width=".." height=".." rx="5"/></clipPath>
+
+═══════════════════════════════════════════════════════
+🚫 ADIM 4 — KATI KURALLAR (ASLA İHLAL ETME)
+═══════════════════════════════════════════════════════
+1. [YASAK] SVG İÇİNDE KESİNLİKLE <text>, HARF VEYA RAKAM KULLANILMAYACAK!
+2. [FORMAT] Yalnızca <svg> ile başlayıp </svg> ile biten saf XML kodunu döndür. Markdown, açıklama veya kod bloğu işareti YAZMA.
+3. [ÖLÇÜ] viewBox="0 0 1000 600" kullan.
+4. [MİNİMUM DETAY] Her SVG EN AZ 40 satır kod olmalı. Tek bir dikdörtgen ve daire ile sahne oluşturma!
+5. [BİLİMSEL DOĞRULUK] Fiziksel imkansızlıklar YASAK:
+   → Gölge ışık kaynağının KARŞI tarafına düşmeli
+   → Nesneler havada süzülmemeli, zemin/masa üzerine oturmalı
+   → Sıvılar kabın dışına taşmamalı, seviye kabın yarısını geçmemeli
+   → Optik düzeneklerde ışık düz çizgide gitmeli
+   → Besin zinciri doğru hiyerarşide olmalı (üretici → tüketici → ayrıştırıcı)
+   → Elektrik devresinde kablolar kesintisiz bağlanmalı
+6. [MEKÂNSAL UYUM] Nesneler mantıklı dizilimde olmalı, üst üste binmemeli.
+7. [ORAN KONTROLÜ] Nesneler birbirine göre GERÇEKÇI boyutta olmalı:
+   → Bir futbol topu bir kale direğinin 1/5'i kadar olmalı, daha büyük değil
+   → İnsan figürü varsa: kafa ≤ gövdenin yarısı, toplam boy zemin-göğüs mesafesinin 2 katı
+   → Nesne ≤ figür boyunun 1/3'ü (eğer figür nesneyi tutuyorsa)
+8. [FİZİKSEL BAĞLANTI] Birbirine bağlı nesneler AYNI koordinatları paylaşmalı:
+   → Figürün eli + tuttuğu nesne → aynı (x,y) noktasında birleşmeli
+   → Kablolar → başlangıç ve bitiş noktaları cihazlara değmeli
+   → Nesneler zeminde → alt kenarı zemin y koordinatına eşit olmalı
+9. [İNSAN FİGÜRÜ] Anatomik insan çizmeye ÇALIŞMA!
+   → İnsan gerekiyorsa SADECE geometrik siluet (daire kafa + dikdörtgen gövde + çizgi kol/bacak)
+   → Ten rengi KULLANMA, koyu gri (#475569) veya siyah siluet yap
+   → Kas, parmak, yüz detayı YASAK
+
+═══════════════════════════════════════════════════════
+✅ KALİTE KONTROL — SVG'NİN KABUL KRİTERLERİ
+═══════════════════════════════════════════════════════
+Ürettiğin SVG şu özelliklere sahip olmalı:
+✓ En az 3 farklı gradyan tanımlı (<defs> içinde)
+✓ En az 1 gölge filtresi uygulanmış
+✓ Arka plan viewBox'un tamamını kaplıyor
+✓ Ana nesneler yeterince BÜYÜK ve GÖRÜNÜR (min 80x80px)
+✓ Nesneler arasında mantıklı boşluk ve hizalama var
+✓ Hiçbir <text> elementi yok
+✓ Bilimsel açıdan %100 doğru
+✓ En az 40 satır SVG kodu
+
+Asıl hedef: MEB kitaplarındaki renkli, hacimli, ultra profesyonel ve BİLİMSEL AÇIDAN %100 DOĞRU sanat eserlerinden birini yaratmak.
+ŞİMDİ SADECE SVG KODUNU VER — başka hiçbir şey yazma.`;
 
     let data, textRes;
     try {

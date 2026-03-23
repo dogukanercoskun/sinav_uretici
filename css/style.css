@@ -447,6 +447,176 @@ h1 {
 .q-badge.diff-Orta  { background: #fef08a; color: #854d0e; }
 .q-badge.diff-Zor   { background: #fee2e2; color: #991b1b; }
 
+/* ── SORU DÜZENLEME MODU ── */
+.q-edit-btn {
+    background: #f3e8ff;
+    color: #7c3aed;
+    border: 1.5px solid #c4b5fd;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: inherit;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.q-edit-btn:hover {
+    background: #7c3aed;
+    color: white;
+    border-color: #7c3aed;
+}
+
+.q-card.editing {
+    border-color: #f59e0b !important;
+    background: #fffbeb !important;
+    cursor: default;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}
+
+.q-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.q-edit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.q-edit-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #92400e;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.q-edit-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    background: white;
+    color: #1e293b;
+    outline: none;
+    transition: border-color .2s;
+    box-sizing: border-box;
+}
+
+.q-edit-input:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.1);
+}
+
+.q-edit-textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    background: white;
+    color: #1e293b;
+    outline: none;
+    transition: border-color .2s;
+    resize: vertical;
+    min-height: 60px;
+    box-sizing: border-box;
+}
+
+.q-edit-textarea:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.1);
+}
+
+.q-edit-select {
+    padding: 7px 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    background: white;
+    color: #1e293b;
+    outline: none;
+    cursor: pointer;
+    max-width: 200px;
+}
+
+.q-edit-select:focus {
+    border-color: #f59e0b;
+}
+
+.q-edit-options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.q-edit-option-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.q-edit-option-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: #2563eb;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.q-edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    padding-top: 8px;
+    border-top: 1px dashed #e5e7eb;
+}
+
+.q-edit-save {
+    background: #059669;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 18px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .2s;
+}
+
+.q-edit-save:hover { background: #047857; }
+
+.q-edit-cancel {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 7px 18px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .2s;
+}
+
+.q-edit-cancel:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
 /* ── GÖRSEL ONAY EKRANI ── */
 .img-review-card {
     border: 1.5px solid #e2e8f0;
@@ -856,6 +1026,11 @@ h1 {
   /* Soru havuzu kartları */
   .q-card { padding: 10px 12px; }
   .q-meta { flex-direction: column; gap: 4px; }
+
+  /* Soru düzenleme modu mobil */
+  .q-edit-options-grid { grid-template-columns: 1fr; }
+  .q-edit-btn { padding: 3px 8px; font-size: 10px; }
+  .q-edit-actions { flex-wrap: wrap; }
 
   /* Sınav kağıdı bölüm başlıkları */
   .exam-print .sh { padding: 6px 10px; }
