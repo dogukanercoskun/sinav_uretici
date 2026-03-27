@@ -12,157 +12,169 @@
     <div class="container">
         <!-- HERO BAŞLIK -->
         <div class="hero-header">
-          <div class="hero-badge">✨ Yapay Zeka Destekli</div>
-          <h1 class="hero-title">🚀 Sınav Üretici</h1>
-          <p class="hero-sub">Tüm Kademeler ve Dersler • Tüm Soru Tipleri • Görsel Destekli • Yazdırmaya Hazır</p>
-          <div class="hero-tags">
-            <span>📝 Çoktan Seçmeli</span>
-            <span>✅ Doğru/Yanlış</span>
-            <span>💬 Açık Uçlu</span>
-            <span>✍️ Boşluk Doldurma</span>
-            <span>🔗 Eşleştirme</span>
-          </div>
+            <div class="hero-badge">✨ Yapay Zeka Destekli</div>
+            <h1 class="hero-title">🚀 Sınav Üretici</h1>
+            <p class="hero-sub">Tüm Kademeler ve Dersler • Tüm Soru Tipleri • Görsel Destekli • Yazdırmaya Hazır</p>
+            <div class="hero-tags">
+                <span>📝 Çoktan Seçmeli</span>
+                <span>✅ Doğru/Yanlış</span>
+                <span>💬 Açık Uçlu</span>
+                <span>✍️ Boşluk Doldurma</span>
+                <span>🔗 Eşleştirme</span>
+            </div>
         </div>
 
         <!-- KULLANIM REHBERİ — Açılır/Kapanır -->
         <div class="card how-to-card" id="howToCard">
-          <!-- Başlık / Toggle -->
-          <div class="how-to-toggle" onclick="toggleHowTo()">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <span style="font-size:18px;">📖</span>
-              <span style="font-weight:800; color:#1e3a5f; font-size:14px;">Nasıl Kullanılır?</span>
-              <span style="font-size:11px; background:#dbeafe; color:#2563eb; padding:2px 8px; border-radius:99px; font-weight:600;">5 Adım</span>
+            <!-- Başlık / Toggle -->
+            <div class="how-to-toggle" onclick="toggleHowTo()">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:18px;">📖</span>
+                    <span style="font-weight:800; color:#1e3a5f; font-size:14px;">Nasıl Kullanılır?</span>
+                    <span
+                        style="font-size:11px; background:#dbeafe; color:#2563eb; padding:2px 8px; border-radius:99px; font-weight:600;">5
+                        Adım</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:11px; color:#94a3b8;" id="howToToggleHint">Gizlemek için tıkla</span>
+                    <span id="howToArrow"
+                        style="font-size:18px; transition:transform .3s; display:inline-block;">▲</span>
+                </div>
             </div>
-            <div style="display:flex; align-items:center; gap:8px;">
-              <span style="font-size:11px; color:#94a3b8;" id="howToToggleHint">Gizlemek için tıkla</span>
-              <span id="howToArrow" style="font-size:18px; transition:transform .3s; display:inline-block;">▲</span>
-            </div>
-          </div>
 
-          <!-- İçerik (başlangıçta açık) -->
-          <div id="howToContent">
-            <div class="how-to-grid">
-              <div class="how-to-step">
-                <div class="how-to-icon">🔑</div>
-                <div class="how-to-step-title">1. API Anahtarı Gir</div>
-                <div class="how-to-step-desc">"API Anahtarları → Düzenle" butonuna tıkla. Google AI Studio'dan <strong>ücretsiz</strong> Gemini anahtarı al ve yapıştır.</div>
-              </div>
-              <div class="how-to-step">
-                <div class="how-to-icon">📝</div>
-                <div class="how-to-step-title">2. Sınav Ayarlarını Yap</div>
-                <div class="how-to-step-desc">Okul, sınıf, ders, konu/kazanımları doldur. Her bölüm için soru sayısı ve puan belirle.</div>
-              </div>
-              <div class="how-to-step">
-                <div class="how-to-icon">🤖</div>
-                <div class="how-to-step-title">3. Soruları Üret</div>
-                <div class="how-to-step-desc">Butona bas, yapay zeka tüm soru tiplerini otomatik oluşturur. Beğenmediğin soruları tik kaldırarak çıkar.</div>
-              </div>
-              <div class="how-to-step">
-                <div class="how-to-icon">🎨</div>
-                <div class="how-to-step-title">4. Görsel Ekle</div>
-                <div class="how-to-step-desc">Sorulara yapay zeka ile görsel veya SVG diyagramı ekleyebilirsin. Gerçekçi PNG fotoğraflar üretmek için <strong>ücretsiz</strong> SiliconFlow anahtarı alınmalıdır.</div>
-              </div>
-              <div class="how-to-step">
-                <div class="how-to-icon">🖨️</div>
-                <div class="how-to-step-title">5. Yazdır / PDF Kaydet</div>
-                <div class="how-to-step-desc">Öğretmen (cevaplı) veya öğrenci (cevapsız) nüshası olarak PDF'e kaydet ya da yazdır.</div>
-              </div>
+            <!-- İçerik (başlangıçta açık) -->
+            <div id="howToContent">
+                <div class="how-to-grid">
+                    <div class="how-to-step">
+                        <div class="how-to-icon">🔑</div>
+                        <div class="how-to-step-title">1. API Anahtarı Gir</div>
+                        <div class="how-to-step-desc">"API Anahtarları → Düzenle" butonuna tıkla. Google AI Studio'dan
+                            <strong>ücretsiz</strong> Gemini anahtarı al ve yapıştır.
+                        </div>
+                    </div>
+                    <div class="how-to-step">
+                        <div class="how-to-icon">📝</div>
+                        <div class="how-to-step-title">2. Sınav Ayarlarını Yap</div>
+                        <div class="how-to-step-desc">Okul, sınıf, ders, konu/kazanımları doldur. Her bölüm için soru
+                            sayısı ve puan belirle.</div>
+                    </div>
+                    <div class="how-to-step">
+                        <div class="how-to-icon">🤖</div>
+                        <div class="how-to-step-title">3. Soruları Üret</div>
+                        <div class="how-to-step-desc">Butona bas, yapay zeka tüm soru tiplerini otomatik oluşturur.
+                            Beğenmediğin soruları tik kaldırarak çıkar.</div>
+                    </div>
+                    <div class="how-to-step">
+                        <div class="how-to-icon">🎨</div>
+                        <div class="how-to-step-title">4. Görsel Ekle</div>
+                        <div class="how-to-step-desc">Sorulara yapay zeka ile görsel veya SVG diyagramı ekleyebilirsin.
+                            Gerçekçi PNG fotoğraflar üretmek için <strong>ücretsiz</strong> SiliconFlow anahtarı
+                            alınmalıdır.</div>
+                    </div>
+                    <div class="how-to-step">
+                        <div class="how-to-icon">🖨️</div>
+                        <div class="how-to-step-title">5. Yazdır / PDF Kaydet</div>
+                        <div class="how-to-step-desc">Öğretmen (cevaplı) veya öğrenci (cevapsız) nüshası olarak PDF'e
+                            kaydet ya da yazdır.</div>
+                    </div>
+                </div>
+                <div class="how-to-tip">
+                    💡 <strong>İpucu:</strong> Gemini API anahtarı tamamen <strong>ücretsiz</strong> ve günde 500 soru
+                    üretimine yeter.
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank">Buradan 2 dakikada alabilirsin
+                        →</a>
+                </div>
             </div>
-            <div class="how-to-tip">
-              💡 <strong>İpucu:</strong> Gemini API anahtarı tamamen <strong>ücretsiz</strong> ve günde 500 soru üretimine yeter.
-              <a href="https://aistudio.google.com/app/apikey" target="_blank">Buradan 2 dakikada alabilirsin →</a>
-            </div>
-          </div>
         </div>
 
         <!-- ADIM 1: AYARLAR -->
         <div class="card" id="settingsCard">
             <div class="card-title"><span>1. Adım — Sınav Temel Ayarları</span></div>
 
-        <div id="apiKeyStatus" onclick="toggleApiSettings()" 
-          style="cursor:pointer; padding:14px 18px; border-radius:12px; border:2px solid #ef4444; 
+            <div id="apiKeyStatus" onclick="toggleApiSettings()" style="cursor:pointer; padding:14px 18px; border-radius:12px; border:2px solid #ef4444; 
                  background:#fff; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between;
                  transition: border-color .2s, background .2s;">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:20px;">🔑</span>
-            <div>
-              <div style="font-weight:700; color:#1e3a5f; font-size:13.5px;">API Anahtarları</div>
-              <div id="apiKeySubtext" style="font-size:11.5px; color:#ef4444; margin-top:1px;">
-                ⚠️ Henüz anahtar girilmedi — sınav üretmek için gerekli!
-              </div>
-            </div>
-          </div>
-          <button style="background:#f1f5f9; border:1.5px solid #e2e8f0; border-radius:8px; 
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:20px;">🔑</span>
+                    <div>
+                        <div style="font-weight:700; color:#1e3a5f; font-size:13.5px;">API Anahtarları</div>
+                        <div id="apiKeySubtext" style="font-size:11.5px; color:#ef4444; margin-top:1px;">
+                            ⚠️ Henüz anahtar girilmedi — sınav üretmek için gerekli!
+                        </div>
+                    </div>
+                </div>
+                <button style="background:#f1f5f9; border:1.5px solid #e2e8f0; border-radius:8px; 
                          padding:7px 14px; font-size:12px; font-weight:700; cursor:pointer; color:#475569;
                          display:flex; align-items:center; gap:5px;">
-            ⚙️ Düzenle / Gör
-          </button>
-        </div>
-
-        <!-- API alanları başlangıçta gizli -->
-        <div id="apiSettingsPanel" class="hidden">
-            <div class="row-full field">
-                <label>Google Gemini API Anahtarı 🔑</label>
-                <input type="password" id="geminiKey"
-                    placeholder="AIzaSy... ile başlayan anahtarını buraya yapıştır"
-                    onchange="saveKey()">
-                <div class="api-key-hint">Yoksa <a href="https://aistudio.google.com/app/apikey" target="_blank">Google
-                        AI Studio'dan</a> ücretsiz alabilirsin. Tarayıcıda saklanır.</div>
+                    ⚙️ Düzenle / Gör
+                </button>
             </div>
 
-            <div class="row-full field">
-                <label>SiliconFlow API Anahtarı 🔑 (AI Görseller İçin)</label>
-                <input type="password" id="siliconKey"
-                    placeholder="sk-... ile başlayan anahtarını buraya yapıştır"
-                    onchange="saveKey()">
-                <div class="api-key-hint">Gerçekçi PNG görseller üretmek (Flux.1) için gereklidir. <a href="https://cloud.siliconflow.cn/" target="_blank">SiliconFlow'dan</a> ücretsiz alabilirsin.</div>
-            </div>
+            <!-- API alanları başlangıçta gizli -->
+            <div id="apiSettingsPanel" class="hidden">
+                <div class="row-full field">
+                    <label>Google Gemini API Anahtarı 🔑</label>
+                    <input type="password" id="geminiKey"
+                        placeholder="AIzaSy... ile başlayan anahtarını buraya yapıştır" onchange="saveKey()">
+                    <div class="api-key-hint">Yoksa <a href="https://aistudio.google.com/app/apikey"
+                            target="_blank">Google
+                            AI Studio'dan</a> ücretsiz alabilirsin. Tarayıcıda saklanır.</div>
+                </div>
 
-            <div class="row-full field">
-                <label>OpenRouter API Anahtarı 🔑 (Yedek Çeviri İçin Opsiyonel)</label>
-                <input type="password" id="openRouterKey"
-                    placeholder="sk-or-v1-... ile başlayan anahtarınızı buraya yapıştırın"
-                    onchange="saveKey()">
-                <div class="api-key-hint">Gemini API kotası dolduğunda çeviri için kullanılacak <a href="https://openrouter.ai/keys" target="_blank">ücretsiz OpenRouter</a> anahtarı.</div>
-            </div>
+                <div class="row-full field">
+                    <label>SiliconFlow API Anahtarı 🔑 (AI Görseller İçin)</label>
+                    <input type="password" id="siliconKey" placeholder="sk-... ile başlayan anahtarını buraya yapıştır"
+                        onchange="saveKey()">
+                    <div class="api-key-hint">Gerçekçi PNG görseller üretmek (Flux.1) için gereklidir. <a
+                            href="https://cloud.siliconflow.cn/" target="_blank">SiliconFlow'dan</a> ücretsiz
+                        alabilirsin.</div>
+                </div>
 
-            <div class="row-full field">
-                <label>OpenRouter Çeviri Modeli (Virgülle Çoklu Seçenek)</label>
-                <input type="text" id="openRouterModel"
-                    value="google/gemma-3-27b-it:free, meta-llama/llama-3.3-70b-instruct:free, qwen/qwen-2.5-72b-instruct:free, mistralai/mistral-7b-instruct:free, microsoft/phi-3-medium-128k-instruct:free, nousresearch/deephermes-3-mistral-24b-preview:free"
-                    onchange="saveKey()">
-                <div class="api-key-hint">Çökmelere karşı virgülle ayırarak birden fazla model yazabilirsiniz. (Sistem sırayla dener)</div>
-            </div>
+                <div class="row-full field">
+                    <label>Pollinations AI Token 🔑 (Flux Görsel Üretimi — Opsiyonel)</label>
+                    <input type="password" id="pollinationsKey"
+                        placeholder="pk veya sk_... ile başlayan kullanıcı tokeninizi yapıştırın" onchange="saveKey()">
+                    <div class="api-key-hint">Gerçekçi PNG görseller üretmek (Flux) için gereklidir. <a
+                            href="https://pollinations.ai/" target="_blank">Pollinations'dan</a> ücretsiz
+                        alabilirsin.</div>
+                </div>
 
-            <div class="row-full field">
-                <label>Hugging Face API Anahtarı 🔑 (2. Yedek Sistem)</label>
-                <input type="password" id="hfKey"
-                    placeholder="hf_... ile başlayan tokeninizi buraya yapıştırın"
-                    onchange="saveKey()">
-                <div class="api-key-hint">OpenRouter da çökerse devreye girecek resmi <a href="https://huggingface.co/settings/tokens" target="_blank">Hugging Face Token'ınız.</a></div>
-            </div>
+                <div class="row-full field">
+                    <label>OpenRouter API Anahtarı 🔑 (Yedek Çeviri İçin Opsiyonel)</label>
+                    <input type="password" id="openRouterKey"
+                        placeholder="sk-or-v1-... ile başlayan anahtarınızı buraya yapıştırın" onchange="saveKey()">
+                    <div class="api-key-hint">Gemini API kotası dolduğunda çeviri için kullanılacak <a
+                            href="https://openrouter.ai/keys" target="_blank">ücretsiz OpenRouter</a> anahtarı.</div>
+                </div>
 
-            <div class="row-full field">
-                <label>Pollinations AI Token 🔑 (Flux Görsel Üretimi — Opsiyonel)</label>
-                <input type="password" id="pollinationsKey"
-                    placeholder="sk_... ile başlayan kullanıcı tokeninizi yapıştırın (boş bırakılabilir)"
-                    onchange="saveKey()">
-                <div class="api-key-hint">
-                    🐝 Anahtarsız da çalışır — ama daha iyi limitler için token alın.
-                    <a href="https://enter.pollinations.ai" target="_blank">👉 enter.pollinations.ai</a>'dan kayıt olun, <code>sk_...</code> API key alın ve buraya yapıştırın
-                    ve geri döndüğünüzde URL'de gelen <code>sk_...</code> tokenini buraya yapıştırın.
+                <div class="row-full field">
+                    <label>OpenRouter Çeviri Modeli (Virgülle Çoklu Seçenek)</label>
+                    <input type="text" id="openRouterModel"
+                        value="google/gemma-3-27b-it:free, meta-llama/llama-3.3-70b-instruct:free, qwen/qwen-2.5-72b-instruct:free, mistralai/mistral-7b-instruct:free, microsoft/phi-3-medium-128k-instruct:free, nousresearch/deephermes-3-mistral-24b-preview:free"
+                        onchange="saveKey()">
+                    <div class="api-key-hint">Çökmelere karşı virgülle ayırarak birden fazla model yazabilirsiniz.
+                        (Sistem sırayla dener)</div>
+                </div>
+
+                <div class="row-full field">
+                    <label>Hugging Face API Anahtarı 🔑 (2. Yedek Sistem)</label>
+                    <input type="password" id="hfKey" placeholder="hf_... ile başlayan tokeninizi buraya yapıştırın"
+                        onchange="saveKey()">
+                    <div class="api-key-hint">OpenRouter da çökerse devreye girecek resmi <a
+                            href="https://huggingface.co/settings/tokens" target="_blank">Hugging Face Token'ınız.</a>
+                    </div>
+                </div>
+
+
+
+
+                <div class="row-full field">
+                    <label>Hugging Face Modeli</label>
+                    <input type="text" id="hfModel" value="Qwen/Qwen2.5-72B-Instruct" onchange="saveKey()">
+                    <div class="api-key-hint">Hugging Face Serverless (Inference) API üzerinde json yanıtı verebilen
+                        ücretsiz model kodu.</div>
                 </div>
             </div>
-
-
-            <div class="row-full field">
-                <label>Hugging Face Modeli</label>
-                <input type="text" id="hfModel"
-                    value="Qwen/Qwen2.5-72B-Instruct"
-                    onchange="saveKey()">
-                <div class="api-key-hint">Hugging Face Serverless (Inference) API üzerinde json yanıtı verebilen ücretsiz model kodu.</div>
-            </div>
-        </div>
 
             <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px;">
                 <div class="field"><label>Okul Adı</label><input type="text" id="csch" value="Sınav Koleji"></div>
@@ -197,9 +209,12 @@
                     placeholder="Örn: Hücrenin temel kısımlarını açıklar. / Birinci Dünya Savaşı'nın nedenlerini yorumlar."></textarea>
             </div>
 
-            <div class="card-title" style="font-size:12px; margin-top:10px;">Hedeflenen Soru Sayıları ve Puan Dağılımı</div>
-            <div style="font-size:11px; color:#64748b; margin-bottom: 10px;">Her bölüm için soru sayısını ve o bölüme verilecek toplam puanı girin. (0 soru = bölüm sınava dahil edilmez)</div>
-            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:10px; margin-bottom:12px;">
+            <div class="card-title" style="font-size:12px; margin-top:10px;">Hedeflenen Soru Sayıları ve Puan Dağılımı
+            </div>
+            <div style="font-size:11px; color:#64748b; margin-bottom: 10px;">Her bölüm için soru sayısını ve o bölüme
+                verilecek toplam puanı girin. (0 soru = bölüm sınava dahil edilmez)</div>
+            <div
+                style="display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:10px; margin-bottom:12px;">
                 <div class="field">
                     <label>Çoktan Seçmeli (A)</label>
                     <span style="font-size:10px; color:#64748b; margin-bottom:2px; display:block;">📊 Soru Sayısı</span>
@@ -304,8 +319,10 @@
         <div class="card hidden" id="resultCard">
             <div class="card-title"><span>🎉 Nihai Sınav Hazır!</span></div>
             <div class="btn-row" style="flex-wrap:wrap; gap:8px;">
-                <button class="btn btn-green" onclick="doPrint()" style="flex:1; min-width:180px;">🖨️ Öğretmen Nüshası (Cevaplı)</button>
-                <button class="btn btn-primary" onclick="doPrintStudent()" style="flex:1; min-width:180px; background:#0891b2;">📄 Öğrenci Nüshası (Cevapsız)</button>
+                <button class="btn btn-green" onclick="doPrint()" style="flex:1; min-width:180px;">🖨️ Öğretmen Nüshası
+                    (Cevaplı)</button>
+                <button class="btn btn-primary" onclick="doPrintStudent()"
+                    style="flex:1; min-width:180px; background:#0891b2;">📄 Öğrenci Nüshası (Cevapsız)</button>
                 <button class="btn btn-secondary" onclick="backToImageReview()">← Görsellere Dön</button>
                 <button class="btn btn-secondary" onclick="resetAll()">🔄 Yeni Sınav Baştan</button>
             </div>
