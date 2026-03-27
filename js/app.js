@@ -74,7 +74,7 @@ function toggleHowTo() {
 
 function updateApiKeyStatus() {
   let count = 0;
-  ['geminiKey','siliconKey','openRouterKey','hfKey'].forEach(id => {
+  ['geminiKey','siliconKey','openRouterKey','hfKey','pollinationsKey'].forEach(id => {
     if (document.getElementById(id)?.value?.trim()) count++;
   });
   
@@ -113,7 +113,10 @@ window.onload = () => {
 
     let savedOrModel = sessionStorage.getItem('openRouterModel');
     if (savedOrModel) document.getElementById('openRouterModel').value = savedOrModel;
-    
+
+    let savedPolKey = sessionStorage.getItem('pollinationsKey');
+    if (savedPolKey) document.getElementById('pollinationsKey').value = savedPolKey;
+
     updateApiKeyStatus();
 
     // "Nasıl Kullanılır" açık/kapalı durumunu localStorage'dan oku
@@ -146,6 +149,9 @@ function saveKey() {
 
     let hfModel = document.getElementById('hfModel').value.trim();
     if (hfModel) sessionStorage.setItem('hfModel', hfModel);
+
+    let polKey = document.getElementById('pollinationsKey').value.trim();
+    if (polKey) sessionStorage.setItem('pollinationsKey', polKey);
     
     updateApiKeyStatus();
 }
@@ -860,6 +866,7 @@ function buildImageCard(q, num, sec, stemText, imageHint) {
         <div class="img-r-controls" style="flex-wrap:wrap; gap:6px;">
             <input type="text" class="img-r-input" id="imginp_${sec}_${num}" value="${imageHint}" placeholder="Sahne tasviri / ek talimat (opsiyonel)" style="min-width:180px;">
             <button class="btn" style="padding:8px 11px; font-size:12px; background:#7c3aed; color:white; border:none; white-space:nowrap;" onclick="loadImage(${num},'silicon','${sec}')">🎨 Silicon AI</button>
+            <button class="btn" style="padding:8px 11px; font-size:12px; background:#ff4e00; color:white; border:none; white-space:nowrap;" onclick="loadImage(${num},'pollinations','${sec}')">🐝 Pollinations</button>
             <button class="btn btn-secondary" style="padding:8px 11px; font-size:12px; background:#e0edff; border-color:#2563eb; color:#1e3a5f; white-space:nowrap;" onclick="loadImage(${num},'svg','${sec}')">📐 SVG Diyagram</button>
             <label class="btn btn-secondary" style="padding:8px 11px; font-size:12px; background:#f0fdf4; border-color:#059669; color:#065f46; white-space:nowrap; cursor:pointer;">
                 📁 Dosyadan Yükle
@@ -869,6 +876,7 @@ function buildImageCard(q, num, sec, stemText, imageHint) {
         </div>
         <div style="font-size:10.5px; color:#94a3b8; margin-top:-2px; margin-bottom:2px;">
             <span style="color:#7c3aed;">🎨 Silicon AI</span>: Flux1-Schnell &nbsp;|&nbsp;
+            <span style="color:#ff4e00;">🐝 Pollinations</span>: Flux Model &nbsp;|&nbsp;
             <span style="color:#2563eb;">📐 SVG</span>: Geometrik &nbsp;|&nbsp;
             <span style="color:#059669;">📁 Dosya</span>: JPG/PNG/SVG
         </div>
@@ -1141,10 +1149,110 @@ MANDATORY RULES FOR THE PROMPT:
 }
 
 // ─────────────────────────────────────────────────────────
-// 4c. KISMI KALDIRILDI (Pollinations Görsel)
+// 4c. Pollinations AI — Flux Görsel Üretimi (Public API, Ücretsiz)
 // ─────────────────────────────────────────────────────────
+async function loadPollinationsImage(num, sec = 'A') {
+    // NOT: image.pollinations.ai ücretsiz ve public.
+    // Authorization header GÖNDERİLMİYOR — CORS preflight tetikleyeceği için.
+    // Basit GET isteği → preflight yok → CORS hatası yok.
+
+    let id    = sec + '_' + num;
+    let qData = finalData['section' + sec][num - 1];
+    if (!qData) return;
+
+    let topic     = document.getElementById('ct').value.trim();
+    let grade     = document.getElementById('cg').value.replace(/[^0-9]/g, '');
+    let stem      = qData.stem || qData.question || '';
+    let extraHint = document.getElementById('imginp_' + id).value.trim();
+    let sceneHint = extraHint || qData.imagePrompt || stem;
+
+    let imgEl     = document.getElementById('imgpreview_' + id);
+    let loader    = document.getElementById('imgloader_' + id);
+    let emptyMsg  = document.getElementById('imgempty_' + id);
+    let removeBtn = document.getElementById('imgremove_' + id);
+
+    loader.classList.remove('hidden');
+    loader.innerHTML = '⏳ 1/2: Sahne İngilizceye çevriliyor...';
+    emptyMsg.classList.add('hidden');
+    imgEl.style.display = 'none';
+    imgEl.removeAttribute('crossorigin');
+    removeBtn.classList.add('hidden');
+
+    try {
+        // 1. Çeviri — mevcut çok katmanlı sistem
+        let translationPrompt = `Write a short English image generation prompt for the FLUX AI model.
+Subject: ${topic}. Grade level: ${grade}.
+Scene (in Turkish): "${sceneHint}"
+Rules: scientific accuracy, no text/labels/numbers in image, 3D render, educational illustration style.
+Output ONLY the prompt in English, nothing else. Max 2 sentences.`;
+
+        let englishPrompt = await translateToEnglish(sceneHint, translationPrompt);
+
+        // Prompt temizle: AI bazen açıklama veya tırnak ekliyor
+        englishPrompt = englishPrompt
+            .replace(/^["'`]|["'`]$/g, '')
+            .replace(/^(Here is|Here's|Prompt:|Result:|Sure[,!])/i, '')
+            .trim()
+            .substring(0, 450); // URL limitini aşmamak için
+
+        // Boş kaldıysa güvenli fallback
+        if (!englishPrompt || englishPrompt.length < 10) {
+            englishPrompt = `Scientific educational illustration about ${topic || 'science'}, 3D render, vivid colors, no text, no labels`;
+        }
+
+        loader.innerHTML = '⏳ 2/2: Pollinations AI (Flux) görsel üretiyor (~20-40sn)...';
+
+        // 2. URL oluştur
+        let seed = Math.floor(Math.random() * 1000000);
+        let polKey = sessionStorage.getItem('pollinationsKey') || document.getElementById('pollinationsKey').value.trim();
+        let polUrl, fetchOptions;
+
+        if (polKey) {
+            polUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(englishPrompt)}?model=flux&width=1024&height=1024&seed=${seed}`;
+            fetchOptions = { headers: { 'Authorization': `Bearer ${polKey}` } };
+        } else {
+            polUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(englishPrompt)}?model=flux&width=1024&height=1024&seed=${seed}`;
+            fetchOptions = {};
+        }
+
+        console.log('[Pollinations] Prompt:', englishPrompt);
+        console.log('[Pollinations] URL:', polUrl);
+
+        // 3. Fetch
+        let response = await fetch(polUrl, fetchOptions);
+
+        if (!response.ok) {
+            throw new Error(`Pollinations API yanıt hatası: HTTP ${response.status} ${response.statusText}`);
+        }
+
+        let contentType = response.headers.get('content-type') || '';
+        if (!contentType.startsWith('image/')) {
+            throw new Error(`Pollinations beklenmedik yanıt döndürdü (${contentType}). Lütfen tekrar deneyin.`);
+        }
+
+        // 4. Blob → Object URL (canvas taint sorunu olmaz)
+        let blob = await response.blob();
+        let objectUrl = URL.createObjectURL(blob);
+
+        imgEl.src = objectUrl;
+        imgEl.style.display = 'block';
+        loader.classList.add('hidden');
+        removeBtn.classList.remove('hidden');
+
+        qData.finalImgSrc = objectUrl;
+        showToast(`Soru ${num} için Pollinations (Flux) görseli üretildi.`, 'success');
+
+    } catch (err) {
+        loader.classList.add('hidden');
+        emptyMsg.classList.remove('hidden');
+        emptyMsg.innerHTML = `<span style="color:#ef4444;">⚠️ Pollinations hatası: ${err.message}</span>`;
+        console.error('[Pollinations] Hata:', err);
+        showToast('Pollinations görsel üretilemedi: ' + err.message, 'error');
+    }
+}
 
 // ─────────────────────────────────────────────────────────
+
 // 4d. GEMİNİ SVG — Geometrik Diyagram (API key gerekir)
 // ─────────────────────────────────────────────────────────
 async function loadSvgImage(num, sec = 'A') {
@@ -1550,6 +1658,8 @@ window.loadImage = async function (num, mode = 'svg', sec = 'A') {
     try {
         if (mode === 'silicon') {
             await loadSiliconImage(num, sec);
+        } else if (mode === 'pollinations') {
+            await loadPollinationsImage(num, sec);
         } else {
             await loadSvgImage(num, sec);
         }

@@ -143,6 +143,19 @@
             </div>
 
             <div class="row-full field">
+                <label>Pollinations AI Token 🔑 (Flux Görsel Üretimi — Opsiyonel)</label>
+                <input type="password" id="pollinationsKey"
+                    placeholder="sk_... ile başlayan kullanıcı tokeninizi yapıştırın (boş bırakılabilir)"
+                    onchange="saveKey()">
+                <div class="api-key-hint">
+                    🐝 Anahtarsız da çalışır — ama daha iyi limitler için token alın.
+                    <a href="https://enter.pollinations.ai" target="_blank">👉 enter.pollinations.ai</a>'dan kayıt olun, <code>sk_...</code> API key alın ve buraya yapıştırın
+                    ve geri döndüğünüzde URL'de gelen <code>sk_...</code> tokenini buraya yapıştırın.
+                </div>
+            </div>
+
+
+            <div class="row-full field">
                 <label>Hugging Face Modeli</label>
                 <input type="text" id="hfModel"
                     value="Qwen/Qwen2.5-72B-Instruct"
