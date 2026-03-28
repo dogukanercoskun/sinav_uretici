@@ -74,7 +74,7 @@ function toggleHowTo() {
 
 function updateApiKeyStatus() {
   let count = 0;
-  ['geminiKey','siliconKey','openRouterKey','hfKey','pollinationsKey'].forEach(id => {
+  ['geminiKey','siliconKey','openRouterKey','hfKey','pollinationsKey','pixazoKey'].forEach(id => {
     if (document.getElementById(id)?.value?.trim()) count++;
   });
   
@@ -117,6 +117,9 @@ window.onload = () => {
     let savedPolKey = sessionStorage.getItem('pollinationsKey');
     if (savedPolKey) document.getElementById('pollinationsKey').value = savedPolKey;
 
+    let savedPixazoKey = sessionStorage.getItem('pixazoKey');
+    if (savedPixazoKey) document.getElementById('pixazoKey').value = savedPixazoKey;
+
     updateApiKeyStatus();
 
     // "Nasıl Kullanılır" açık/kapalı durumunu localStorage'dan oku
@@ -152,7 +155,10 @@ function saveKey() {
 
     let polKey = document.getElementById('pollinationsKey').value.trim();
     if (polKey) sessionStorage.setItem('pollinationsKey', polKey);
-    
+
+    let pixazoKey = document.getElementById('pixazoKey').value.trim();
+    if (pixazoKey) sessionStorage.setItem('pixazoKey', pixazoKey);
+
     updateApiKeyStatus();
 }
 
@@ -867,6 +873,7 @@ function buildImageCard(q, num, sec, stemText, imageHint) {
             <input type="text" class="img-r-input" id="imginp_${sec}_${num}" value="${imageHint}" placeholder="Sahne tasviri / ek talimat (opsiyonel)" style="min-width:180px;">
             <button class="btn" style="padding:8px 11px; font-size:12px; background:#7c3aed; color:white; border:none; white-space:nowrap;" onclick="loadImage(${num},'silicon','${sec}')">🎨 Silicon AI</button>
             <button class="btn" style="padding:8px 11px; font-size:12px; background:#ff4e00; color:white; border:none; white-space:nowrap;" onclick="loadImage(${num},'pollinations','${sec}')">🐝 Pollinations</button>
+            <button class="btn" style="padding:8px 11px; font-size:12px; background:#0ea5e9; color:white; border:none; white-space:nowrap;" onclick="loadImage(${num},'pixazo','${sec}')">⚡ Pixazo AI</button>
             <button class="btn btn-secondary" style="padding:8px 11px; font-size:12px; background:#e0edff; border-color:#2563eb; color:#1e3a5f; white-space:nowrap;" onclick="loadImage(${num},'svg','${sec}')">📐 SVG Diyagram</button>
             <label class="btn btn-secondary" style="padding:8px 11px; font-size:12px; background:#f0fdf4; border-color:#059669; color:#065f46; white-space:nowrap; cursor:pointer;">
                 📁 Dosyadan Yükle
@@ -877,6 +884,7 @@ function buildImageCard(q, num, sec, stemText, imageHint) {
         <div style="font-size:10.5px; color:#94a3b8; margin-top:-2px; margin-bottom:2px;">
             <span style="color:#7c3aed;">🎨 Silicon AI</span>: Flux1-Schnell &nbsp;|&nbsp;
             <span style="color:#ff4e00;">🐝 Pollinations</span>: Flux Model &nbsp;|&nbsp;
+            <span style="color:#0ea5e9;">⚡ Pixazo</span>: Flux-1 Schnell &nbsp;|&nbsp;
             <span style="color:#2563eb;">📐 SVG</span>: Geometrik &nbsp;|&nbsp;
             <span style="color:#059669;">📁 Dosya</span>: JPG/PNG/SVG
         </div>
@@ -1639,6 +1647,116 @@ Asıl hedef: MEB kitaplarındaki renkli, hacimli, ultra profesyonel ve BİLİMSE
 }
 
 // ─────────────────────────────────────────────────────────
+// 3b. PIXAZO AI GÖRSEL ÜRETİMİ (Flux-1 Schnell)
+// ─────────────────────────────────────────────────────────
+async function loadPixazoImage(num, sec = 'A') {
+    let id    = sec + '_' + num;
+    let qData = finalData['section' + sec][num - 1];
+    if (!qData) return;
+
+    let pixazoKey = sessionStorage.getItem('pixazoKey') || document.getElementById('pixazoKey').value.trim();
+    if (!pixazoKey) {
+        throw new Error('Pixazo API anahtarı girilmemiş. Lütfen ayarlar bölümünden ekleyin.');
+    }
+
+    let topic     = document.getElementById('ct').value.trim();
+    let grade     = document.getElementById('cg').value.replace(/[^0-9]/g, '');
+    let stem      = qData.stem || qData.question || '';
+    let extraHint = document.getElementById('imginp_' + id).value.trim();
+    let sceneHint = extraHint || qData.imagePrompt || stem;
+
+    let imgEl     = document.getElementById('imgpreview_' + id);
+    let loader    = document.getElementById('imgloader_' + id);
+    let emptyMsg  = document.getElementById('imgempty_' + id);
+    let removeBtn = document.getElementById('imgremove_' + id);
+
+    loader.classList.remove('hidden');
+    loader.innerHTML = '⏳ 1/2: Sahne İngilizceye çevriliyor...';
+    emptyMsg.classList.add('hidden');
+    imgEl.style.display = 'none';
+    imgEl.removeAttribute('crossorigin');
+    removeBtn.classList.add('hidden');
+
+    try {
+        // 1. Çeviri
+        let translationPrompt = `Write a short English image generation prompt for the FLUX AI model.
+Subject: ${topic}. Grade level: ${grade}.
+Scene (in Turkish): "${sceneHint}"
+Rules: scientific accuracy, no text/labels/numbers in image, 3D render, educational illustration style.
+Output ONLY the prompt in English, nothing else. Max 2 sentences.`;
+
+        let englishPrompt = await translateToEnglish(sceneHint, translationPrompt);
+
+        englishPrompt = englishPrompt
+            .replace(/^["'`]|["'`]$/g, '')
+            .replace(/^(Here is|Here's|Prompt:|Result:|Sure[,!])/i, '')
+            .trim()
+            .substring(0, 450);
+
+        if (!englishPrompt || englishPrompt.length < 10) {
+            englishPrompt = `Scientific educational illustration about ${topic || 'science'}, 3D render, vivid colors, no text, no labels`;
+        }
+
+        loader.innerHTML = '⏳ 2/2: Pixazo AI (Flux-1 Schnell) görsel üretiyor...';
+
+        // 2. Pixazo API isteği
+        let seed = Math.floor(Math.random() * 1000000);
+        let response = await fetch('https://gateway.pixazo.ai/flux-1-schnell/v1/getData', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache',
+                'Ocp-Apim-Subscription-Key': pixazoKey
+            },
+            body: JSON.stringify({
+                prompt: englishPrompt,
+                num_steps: 4,
+                seed: seed,
+                height: 512,
+                width: 512
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Pixazo API hatası: HTTP ${response.status} ${response.statusText}`);
+        }
+
+        let json = await response.json();
+        let imageUrl = json.output;
+
+        if (!imageUrl) {
+            throw new Error('Pixazo API geçerli bir görsel URL\'si döndürmedi.');
+        }
+
+        console.log('[Pixazo] Prompt:', englishPrompt);
+        console.log('[Pixazo] Image URL:', imageUrl);
+
+        // 3. Görseli blob olarak indir (canvas taint sorunu olmaz)
+        let imgResponse = await fetch(imageUrl);
+        if (!imgResponse.ok) {
+            throw new Error(`Görsel indirilemedi: HTTP ${imgResponse.status}`);
+        }
+        let blob = await imgResponse.blob();
+        let objectUrl = URL.createObjectURL(blob);
+
+        imgEl.src = objectUrl;
+        imgEl.style.display = 'block';
+        loader.classList.add('hidden');
+        removeBtn.classList.remove('hidden');
+
+        qData.finalImgSrc = objectUrl;
+        showToast(`Soru ${num} için Pixazo AI (Flux-1 Schnell) görseli üretildi.`, 'success');
+
+    } catch (err) {
+        loader.classList.add('hidden');
+        emptyMsg.classList.remove('hidden');
+        emptyMsg.innerHTML = `<span style="color:#ef4444;">⚠️ Pixazo hatası: ${err.message}</span>`;
+        console.error('[Pixazo] Hata:', err);
+        showToast('Pixazo görsel üretilemedi: ' + err.message, 'error');
+    }
+}
+
+// ─────────────────────────────────────────────────────────
 // 4. ANA GÖRSEL YÜKLEME FONKSİYONU
 // mode: 'silicon' | 'svg'
 // ─────────────────────────────────────────────────────────
@@ -1650,7 +1768,7 @@ window.loadImage = async function (num, mode = 'svg', sec = 'A') {
     let removeBtn = document.getElementById('imgremove_' + id);
 
     loader.classList.remove('hidden');
-    loader.innerHTML = mode === 'silicon' ? '⏳ Hazırlanıyor...' : '⏳ SVG diyagram üretiliyor (bekleyiniz)...';
+    loader.innerHTML = mode === 'silicon' ? '⏳ Hazırlanıyor...' : mode === 'pixazo' ? '⏳ Pixazo AI hazırlanıyor...' : '⏳ SVG diyagram üretiliyor (bekleyiniz)...';
     emptyMsg.classList.add('hidden');
     imgEl.style.display = 'none';
     removeBtn.classList.add('hidden');
@@ -1660,6 +1778,8 @@ window.loadImage = async function (num, mode = 'svg', sec = 'A') {
             await loadSiliconImage(num, sec);
         } else if (mode === 'pollinations') {
             await loadPollinationsImage(num, sec);
+        } else if (mode === 'pixazo') {
+            await loadPixazoImage(num, sec);
         } else {
             await loadSvgImage(num, sec);
         }
